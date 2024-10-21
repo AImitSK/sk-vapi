@@ -19,7 +19,16 @@ export default function HomePage() {
     } else {
       try {
         setLoading(true); // Ladeanimation anzeigen
-        await vapi.start(process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID); // Assistant-ID aus der .env-Datei
+
+        // Überprüfen, ob das Mikrofon stummgeschaltet ist
+        if (vapi.isMuted()) {
+          console.log("Mikrofon ist stummgeschaltet. Schalte Mikrofon ein.");
+          vapi.setMuted(false); // Mikrofon aktivieren
+        }
+
+        // Assistenten starten (ohne manuelle Transkriptor-Konfiguration, da das Dashboard verwendet wird)
+        await vapi.start(process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID);
+
         setIsCallActive(true);
         setLoading(false);
       } catch (error) {
@@ -32,6 +41,9 @@ export default function HomePage() {
 
   useEffect(() => {
     const handleMessage = (message) => {
+      // Nachrichten debuggen
+      console.log("Empfangene Nachricht:", message);
+
       if (message && message.content) {
         setText((prev) => prev + "\n" + message.content); // Nachrichten anzeigen
       } else {
